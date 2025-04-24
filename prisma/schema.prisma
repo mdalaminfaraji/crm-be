@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum InteractionType {
+  CALL
+  EMAIL
+  MEETING
+  OTHER
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  clients     Client[]
+  projects    Project[]
+  interactions Interaction[]
+  reminders   Reminder[]
+}
+
+model Client {
+  id          String    @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  company     String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects    Project[]
+  interactions Interaction[]
+  reminders   Reminder[]
+
+  @@index([userId])
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  budget      Float?
+  deadline    DateTime?
+  status      ProjectStatus @default(NOT_STARTED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interactions Interaction[]
+  reminders   Reminder[]
+
+  @@index([clientId])
+  @@index([userId])
+}
+
+model Interaction {
+  id          String          @id @default(uuid())
+  date        DateTime        @default(now())
+  type        InteractionType
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  clientId    String?
+  client      Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Reminder {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  dueDate     DateTime
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  clientId    String?
+  client      Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([userId])
+}
