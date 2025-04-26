@@ -47,7 +47,13 @@ export const createInteractionSchema = z.object({
   message: 'Either clientId or projectId must be provided',
 });
 
-export const updateInteractionSchema = createInteractionSchema.partial();
+export const updateInteractionSchema = z.object({
+  date: z.string().transform(val => new Date(val)).optional(),
+  type: z.enum(['CALL', 'EMAIL', 'MEETING', 'OTHER']).optional(),
+  notes: z.string().optional(),
+  clientId: z.string().uuid('Invalid client ID').optional(),
+  projectId: z.string().uuid('Invalid project ID').optional(),
+});
 
 // Reminder validation schemas
 export const createReminderSchema = z.object({
@@ -61,4 +67,11 @@ export const createReminderSchema = z.object({
   message: 'Either clientId or projectId must be provided',
 });
 
-export const updateReminderSchema = createReminderSchema.partial();
+export const updateReminderSchema = z.object({
+  title: z.string().min(1, 'Title is required').optional(),
+  description: z.string().optional(),
+  dueDate: z.string().transform(val => new Date(val)).optional(),
+  completed: z.boolean().optional(),
+  clientId: z.string().uuid('Invalid client ID').optional(),
+  projectId: z.string().uuid('Invalid project ID').optional(),
+});

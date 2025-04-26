@@ -7,12 +7,14 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 
 // Import routes
-import authRoutes from './routes/auth.routes';
-import clientRoutes from './routes/client.routes';
-import projectRoutes from './routes/project.routes';
-import interactionRoutes from './routes/interaction.routes';
-import reminderRoutes from './routes/reminder.routes';
-import dashboardRoutes from './routes/dashboard.routes';
+import {
+  authRoutes,
+  clientRoutes,
+  projectRoutes,
+  interactionRoutes,
+  reminderRoutes,
+  dashboardRoutes
+} from './routes';
 
 // Load environment variables
 dotenv.config();

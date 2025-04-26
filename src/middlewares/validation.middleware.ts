@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { ZodError, ZodType } from 'zod';
 
-export const validate = (schema: AnyZodObject) => {
+export const validate = (schema: ZodType<any, any>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Validate request body against schema
