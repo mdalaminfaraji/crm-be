@@ -9,19 +9,16 @@ export const getAllClients = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Parse query parameters with defaults
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = (req.query.search as string) || '';
     const sortBy = (req.query.sortBy as string) || 'createdAt';
     const sortOrder = (req.query.sortOrder as string) || 'desc';
 
-    // Calculate pagination values
     const skip = (page - 1) * limit;
 
-    // Build the where clause with search
     const whereClause: any = { userId };
-    
+
     if (search) {
       whereClause.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -31,10 +28,8 @@ export const getAllClients = async (req: Request, res: Response) => {
       ];
     }
 
-    // Get total count for pagination
     const totalCount = await prisma.client.count({ where: whereClause });
 
-    // Get clients with pagination, sorting and filtering
     const clients = await prisma.client.findMany({
       where: whereClause,
       orderBy: { [sortBy]: sortOrder },
@@ -42,7 +37,6 @@ export const getAllClients = async (req: Request, res: Response) => {
       take: limit,
     });
 
-    // Calculate pagination metadata
     const totalPages = Math.ceil(totalCount / limit);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
@@ -56,8 +50,8 @@ export const getAllClients = async (req: Request, res: Response) => {
         totalCount,
         totalPages,
         hasNextPage,
-        hasPreviousPage
-      }
+        hasPreviousPage,
+      },
     });
   } catch (error) {
     console.error('Get all clients error:', error);
@@ -77,13 +71,13 @@ export const getClientById = async (req: Request, res: Response) => {
     const client = await prisma.client.findFirst({
       where: {
         id,
-        userId
+        userId,
       },
       include: {
         projects: true,
         interactions: true,
-        reminders: true
-      }
+        reminders: true,
+      },
     });
 
     if (!client) {
@@ -92,7 +86,7 @@ export const getClientById = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Client retrieved successfully',
-      client
+      client,
     });
   } catch (error) {
     console.error('Get client by ID error:', error);
@@ -116,13 +110,13 @@ export const createClient = async (req: Request, res: Response) => {
         phone,
         company,
         notes,
-        userId
-      }
+        userId,
+      },
     });
 
     res.status(201).json({
       message: 'Client created successfully',
-      client: newClient
+      client: newClient,
     });
   } catch (error) {
     console.error('Create client error:', error);
@@ -144,8 +138,8 @@ export const updateClient = async (req: Request, res: Response) => {
     const existingClient = await prisma.client.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingClient) {
@@ -160,13 +154,13 @@ export const updateClient = async (req: Request, res: Response) => {
         email,
         phone,
         company,
-        notes
-      }
+        notes,
+      },
     });
 
     res.status(200).json({
       message: 'Client updated successfully',
-      client: updatedClient
+      client: updatedClient,
     });
   } catch (error) {
     console.error('Update client error:', error);
@@ -187,8 +181,8 @@ export const deleteClient = async (req: Request, res: Response) => {
     const existingClient = await prisma.client.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingClient) {
@@ -197,11 +191,11 @@ export const deleteClient = async (req: Request, res: Response) => {
 
     // Delete client (cascading delete will handle related records)
     await prisma.client.delete({
-      where: { id }
+      where: { id },
     });
 
     res.status(200).json({
-      message: 'Client deleted successfully'
+      message: 'Client deleted successfully',
     });
   } catch (error) {
     console.error('Delete client error:', error);

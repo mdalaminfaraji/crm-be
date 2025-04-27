@@ -1,9 +1,9 @@
-import { 
-  getAllInteractions, 
-  getInteractionById, 
-  createInteraction, 
-  updateInteraction, 
-  deleteInteraction 
+import {
+  getAllInteractions,
+  getInteractionById,
+  createInteraction,
+  updateInteraction,
+  deleteInteraction,
 } from '../controllers/interaction.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validation.middleware';

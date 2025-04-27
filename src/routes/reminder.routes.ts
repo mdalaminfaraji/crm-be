@@ -1,9 +1,9 @@
-import { 
-  getAllReminders, 
-  getReminderById, 
-  createReminder, 
-  updateReminder, 
-  deleteReminder 
+import {
+  getAllReminders,
+  getReminderById,
+  createReminder,
+  updateReminder,
+  deleteReminder,
 } from '../controllers/reminder.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validation.middleware';

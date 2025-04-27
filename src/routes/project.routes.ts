@@ -1,9 +1,9 @@
-import { 
-  getAllProjects, 
-  getProjectById, 
-  createProject, 
-  updateProject, 
-  deleteProject 
+import {
+  getAllProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
 } from '../controllers/project.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validation.middleware';

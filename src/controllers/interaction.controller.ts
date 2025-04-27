@@ -12,11 +12,11 @@ export const getAllInteractions = async (req: Request, res: Response) => {
 
     // Build filter conditions
     const whereCondition: any = { userId };
-    
+
     if (clientId) {
       whereCondition.clientId = clientId;
     }
-    
+
     if (projectId) {
       whereCondition.projectId = projectId;
     }
@@ -27,22 +27,22 @@ export const getAllInteractions = async (req: Request, res: Response) => {
         client: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
+            title: true,
+          },
+        },
       },
-      orderBy: { date: 'desc' }
+      orderBy: { date: 'desc' },
     });
 
     res.status(200).json({
       message: 'Interactions retrieved successfully',
-      interactions
+      interactions,
     });
   } catch (error) {
     console.error('Get all interactions error:', error);
@@ -62,23 +62,23 @@ export const getInteractionById = async (req: Request, res: Response) => {
     const interaction = await prisma.interaction.findFirst({
       where: {
         id,
-        userId
+        userId,
       },
       include: {
         client: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
-      }
+            title: true,
+          },
+        },
+      },
     });
 
     if (!interaction) {
@@ -87,7 +87,7 @@ export const getInteractionById = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Interaction retrieved successfully',
-      interaction
+      interaction,
     });
   } catch (error) {
     console.error('Get interaction by ID error:', error);
@@ -104,20 +104,18 @@ export const createInteraction = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Validate that at least one of clientId or projectId is provided
     if (!clientId && !projectId) {
-      return res.status(400).json({ 
-        message: 'Either clientId or projectId must be provided' 
+      return res.status(400).json({
+        message: 'Either clientId or projectId must be provided',
       });
     }
 
-    // If clientId is provided, check if client exists and belongs to user
     if (clientId) {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!client) {
@@ -125,13 +123,12 @@ export const createInteraction = async (req: Request, res: Response) => {
       }
     }
 
-    // If projectId is provided, check if project exists and belongs to user
     if (projectId) {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!project) {
@@ -146,13 +143,13 @@ export const createInteraction = async (req: Request, res: Response) => {
         notes,
         clientId,
         projectId,
-        userId
-      }
+        userId,
+      },
     });
 
     res.status(201).json({
       message: 'Interaction created successfully',
-      interaction: newInteraction
+      interaction: newInteraction,
     });
   } catch (error) {
     console.error('Create interaction error:', error);
@@ -170,25 +167,23 @@ export const updateInteraction = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Check if interaction exists and belongs to user
     const existingInteraction = await prisma.interaction.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingInteraction) {
       return res.status(404).json({ message: 'Interaction not found' });
     }
 
-    // If clientId is provided, check if client exists and belongs to user
     if (clientId) {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!client) {
@@ -196,13 +191,12 @@ export const updateInteraction = async (req: Request, res: Response) => {
       }
     }
 
-    // If projectId is provided, check if project exists and belongs to user
     if (projectId) {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!project) {
@@ -210,7 +204,6 @@ export const updateInteraction = async (req: Request, res: Response) => {
       }
     }
 
-    // Update interaction
     const updatedInteraction = await prisma.interaction.update({
       where: { id },
       data: {
@@ -218,13 +211,13 @@ export const updateInteraction = async (req: Request, res: Response) => {
         type,
         notes,
         clientId,
-        projectId
-      }
+        projectId,
+      },
     });
 
     res.status(200).json({
       message: 'Interaction updated successfully',
-      interaction: updatedInteraction
+      interaction: updatedInteraction,
     });
   } catch (error) {
     console.error('Update interaction error:', error);
@@ -241,25 +234,23 @@ export const deleteInteraction = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Check if interaction exists and belongs to user
     const existingInteraction = await prisma.interaction.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingInteraction) {
       return res.status(404).json({ message: 'Interaction not found' });
     }
 
-    // Delete interaction
     await prisma.interaction.delete({
-      where: { id }
+      where: { id },
     });
 
     res.status(200).json({
-      message: 'Interaction deleted successfully'
+      message: 'Interaction deleted successfully',
     });
   } catch (error) {
     console.error('Delete interaction error:', error);

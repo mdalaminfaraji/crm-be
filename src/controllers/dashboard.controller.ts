@@ -11,26 +11,29 @@ export const getDashboardData = async (req: Request, res: Response) => {
 
     // Get total clients count
     const totalClients = await prisma.client.count({
-      where: { userId }
+      where: { userId },
     });
 
     // Get total projects count
     const totalProjects = await prisma.project.count({
-      where: { userId }
+      where: { userId },
     });
 
     // Get projects by status
     const projectsByStatus = await prisma.project.groupBy({
       by: ['status'],
       where: { userId },
-      _count: true
+      _count: true,
     });
 
     // Format projects by status for easier consumption by frontend
-    const formattedProjectsByStatus = projectsByStatus.reduce((acc: Record<string, number>, curr: { status: string; _count: number }) => {
-      acc[curr.status] = curr._count;
-      return acc;
-    }, {});
+    const formattedProjectsByStatus = projectsByStatus.reduce(
+      (acc: Record<string, number>, curr: { status: string; _count: number }) => {
+        acc[curr.status] = curr._count;
+        return acc;
+      },
+      {},
+    );
 
     // Get reminders due this week
     const today = new Date();
@@ -42,26 +45,26 @@ export const getDashboardData = async (req: Request, res: Response) => {
         userId,
         dueDate: {
           gte: today,
-          lte: nextWeek
+          lte: nextWeek,
         },
-        completed: false
+        completed: false,
       },
       include: {
         client: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
+            title: true,
+          },
+        },
       },
       orderBy: { dueDate: 'asc' },
-      take: 5
+      take: 5,
     });
 
     // Get recent interactions
@@ -71,18 +74,18 @@ export const getDashboardData = async (req: Request, res: Response) => {
         client: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
+            title: true,
+          },
+        },
       },
       orderBy: { date: 'desc' },
-      take: 5
+      take: 5,
     });
 
     // Get projects with upcoming deadlines
@@ -91,22 +94,22 @@ export const getDashboardData = async (req: Request, res: Response) => {
         userId,
         deadline: {
           gte: today,
-          lte: nextWeek
+          lte: nextWeek,
         },
         status: {
-          not: 'COMPLETED'
-        }
+          not: 'COMPLETED',
+        },
       },
       include: {
         client: {
           select: {
             id: true,
-            name: true
-          }
-        }
+            name: true,
+          },
+        },
       },
       orderBy: { deadline: 'asc' },
-      take: 5
+      take: 5,
     });
 
     res.status(200).json({
@@ -117,8 +120,8 @@ export const getDashboardData = async (req: Request, res: Response) => {
         projectsByStatus: formattedProjectsByStatus,
         upcomingReminders,
         recentInteractions,
-        upcomingDeadlines
-      }
+        upcomingDeadlines,
+      },
     });
   } catch (error) {
     console.error('Get dashboard data error:', error);

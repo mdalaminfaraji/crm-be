@@ -9,7 +9,6 @@ export const getAllProjects = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Parse query parameters with defaults
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = (req.query.search as string) || '';
@@ -18,12 +17,10 @@ export const getAllProjects = async (req: Request, res: Response) => {
     const sortBy = (req.query.sortBy as string) || 'createdAt';
     const sortOrder = (req.query.sortOrder as string) || 'desc';
 
-    // Calculate pagination values
     const skip = (page - 1) * limit;
 
-    // Build the where clause with search and filters
     const whereClause: any = { userId };
-    
+
     if (search) {
       whereClause.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -39,10 +36,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
       whereClause.clientId = clientId;
     }
 
-    // Get total count for pagination
     const totalCount = await prisma.project.count({ where: whereClause });
 
-    // Get projects with pagination, sorting and filtering
     const projects = await prisma.project.findMany({
       where: whereClause,
       include: {
@@ -50,16 +45,15 @@ export const getAllProjects = async (req: Request, res: Response) => {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        }
+            email: true,
+          },
+        },
       },
       orderBy: { [sortBy]: sortOrder },
       skip,
       take: limit,
     });
 
-    // Calculate pagination metadata
     const totalPages = Math.ceil(totalCount / limit);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
@@ -73,8 +67,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
         totalCount,
         totalPages,
         hasNextPage,
-        hasPreviousPage
-      }
+        hasPreviousPage,
+      },
     });
   } catch (error) {
     console.error('Get all projects error:', error);
@@ -94,7 +88,7 @@ export const getProjectById = async (req: Request, res: Response) => {
     const project = await prisma.project.findFirst({
       where: {
         id,
-        userId
+        userId,
       },
       include: {
         client: {
@@ -102,12 +96,12 @@ export const getProjectById = async (req: Request, res: Response) => {
             id: true,
             name: true,
             email: true,
-            phone: true
-          }
+            phone: true,
+          },
         },
         interactions: true,
-        reminders: true
-      }
+        reminders: true,
+      },
     });
 
     if (!project) {
@@ -116,7 +110,7 @@ export const getProjectById = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Project retrieved successfully',
-      project
+      project,
     });
   } catch (error) {
     console.error('Get project by ID error:', error);
@@ -137,8 +131,8 @@ export const createProject = async (req: Request, res: Response) => {
     const client = await prisma.client.findFirst({
       where: {
         id: clientId,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!client) {
@@ -153,13 +147,13 @@ export const createProject = async (req: Request, res: Response) => {
         deadline: deadline ? new Date(deadline) : undefined,
         status: status || 'NOT_STARTED',
         clientId,
-        userId
-      }
+        userId,
+      },
     });
 
     res.status(201).json({
       message: 'Project created successfully',
-      project: newProject
+      project: newProject,
     });
   } catch (error) {
     console.error('Create project error:', error);
@@ -181,8 +175,8 @@ export const updateProject = async (req: Request, res: Response) => {
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingProject) {
@@ -194,8 +188,8 @@ export const updateProject = async (req: Request, res: Response) => {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!client) {
@@ -212,13 +206,13 @@ export const updateProject = async (req: Request, res: Response) => {
         budget: budget !== undefined ? parseFloat(budget) : undefined,
         deadline: deadline ? new Date(deadline) : undefined,
         status,
-        clientId
-      }
+        clientId,
+      },
     });
 
     res.status(200).json({
       message: 'Project updated successfully',
-      project: updatedProject
+      project: updatedProject,
     });
   } catch (error) {
     console.error('Update project error:', error);
@@ -239,8 +233,8 @@ export const deleteProject = async (req: Request, res: Response) => {
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingProject) {
@@ -249,11 +243,11 @@ export const deleteProject = async (req: Request, res: Response) => {
 
     // Delete project (cascading delete will handle related records)
     await prisma.project.delete({
-      where: { id }
+      where: { id },
     });
 
     res.status(200).json({
-      message: 'Project deleted successfully'
+      message: 'Project deleted successfully',
     });
   } catch (error) {
     console.error('Delete project error:', error);

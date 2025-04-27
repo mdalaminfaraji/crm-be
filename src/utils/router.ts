@@ -39,6 +39,6 @@ export const createRouter = () => {
     post,
     put,
     delete: del,
-    use
+    use,
   };
 };

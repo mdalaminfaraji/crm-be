@@ -14,5 +14,5 @@ declare global {
 export type RequestHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => Promise<any> | any;

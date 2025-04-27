@@ -12,11 +12,11 @@ export const getAllReminders = async (req: Request, res: Response) => {
 
     // Build filter conditions
     const whereCondition: any = { userId };
-    
+
     if (clientId) {
       whereCondition.clientId = clientId;
     }
-    
+
     if (projectId) {
       whereCondition.projectId = projectId;
     }
@@ -26,10 +26,10 @@ export const getAllReminders = async (req: Request, res: Response) => {
       const today = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
-      
+
       whereCondition.dueDate = {
         gte: today,
-        lte: nextWeek
+        lte: nextWeek,
       };
     }
 
@@ -39,22 +39,22 @@ export const getAllReminders = async (req: Request, res: Response) => {
         client: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
+            title: true,
+          },
+        },
       },
-      orderBy: { dueDate: 'asc' }
+      orderBy: { dueDate: 'asc' },
     });
 
     res.status(200).json({
       message: 'Reminders retrieved successfully',
-      reminders
+      reminders,
     });
   } catch (error) {
     console.error('Get all reminders error:', error);
@@ -74,23 +74,23 @@ export const getReminderById = async (req: Request, res: Response) => {
     const reminder = await prisma.reminder.findFirst({
       where: {
         id,
-        userId
+        userId,
       },
       include: {
         client: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         project: {
           select: {
             id: true,
-            title: true
-          }
-        }
-      }
+            title: true,
+          },
+        },
+      },
     });
 
     if (!reminder) {
@@ -99,7 +99,7 @@ export const getReminderById = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Reminder retrieved successfully',
-      reminder
+      reminder,
     });
   } catch (error) {
     console.error('Get reminder by ID error:', error);
@@ -118,8 +118,8 @@ export const createReminder = async (req: Request, res: Response) => {
 
     // Validate that at least one of clientId or projectId is provided
     if (!clientId && !projectId) {
-      return res.status(400).json({ 
-        message: 'Either clientId or projectId must be provided' 
+      return res.status(400).json({
+        message: 'Either clientId or projectId must be provided',
       });
     }
 
@@ -128,8 +128,8 @@ export const createReminder = async (req: Request, res: Response) => {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!client) {
@@ -142,8 +142,8 @@ export const createReminder = async (req: Request, res: Response) => {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!project) {
@@ -159,13 +159,13 @@ export const createReminder = async (req: Request, res: Response) => {
         completed: completed || false,
         clientId,
         projectId,
-        userId
-      }
+        userId,
+      },
     });
 
     res.status(201).json({
       message: 'Reminder created successfully',
-      reminder: newReminder
+      reminder: newReminder,
     });
   } catch (error) {
     console.error('Create reminder error:', error);
@@ -187,8 +187,8 @@ export const updateReminder = async (req: Request, res: Response) => {
     const existingReminder = await prisma.reminder.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingReminder) {
@@ -200,8 +200,8 @@ export const updateReminder = async (req: Request, res: Response) => {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!client) {
@@ -214,8 +214,8 @@ export const updateReminder = async (req: Request, res: Response) => {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!project) {
@@ -232,13 +232,13 @@ export const updateReminder = async (req: Request, res: Response) => {
         dueDate: dueDate ? new Date(dueDate) : undefined,
         completed,
         clientId,
-        projectId
-      }
+        projectId,
+      },
     });
 
     res.status(200).json({
       message: 'Reminder updated successfully',
-      reminder: updatedReminder
+      reminder: updatedReminder,
     });
   } catch (error) {
     console.error('Update reminder error:', error);
@@ -259,8 +259,8 @@ export const deleteReminder = async (req: Request, res: Response) => {
     const existingReminder = await prisma.reminder.findFirst({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     });
 
     if (!existingReminder) {
@@ -269,11 +269,11 @@ export const deleteReminder = async (req: Request, res: Response) => {
 
     // Delete reminder
     await prisma.reminder.delete({
-      where: { id }
+      where: { id },
     });
 
     res.status(200).json({
-      message: 'Reminder deleted successfully'
+      message: 'Reminder deleted successfully',
     });
   } catch (error) {
     console.error('Delete reminder error:', error);

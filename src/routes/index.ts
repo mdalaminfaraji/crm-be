@@ -11,5 +11,5 @@ export {
   projectRoutes,
   interactionRoutes,
   reminderRoutes,
-  dashboardRoutes
+  dashboardRoutes,
 };

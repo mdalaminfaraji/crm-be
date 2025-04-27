@@ -1,9 +1,9 @@
-import { 
-  getAllClients, 
-  getClientById, 
-  createClient, 
-  updateClient, 
-  deleteClient 
+import {
+  getAllClients,
+  getClientById,
+  createClient,
+  updateClient,
+  deleteClient,
 } from '../controllers/client.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validation.middleware';

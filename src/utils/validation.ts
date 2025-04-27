@@ -29,7 +29,10 @@ export const createProjectSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   budget: z.number().positive().optional(),
-  deadline: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  deadline: z
+    .string()
+    .optional()
+    .transform((val) => (val ? new Date(val) : undefined)),
   status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
   clientId: z.string().uuid('Invalid client ID'),
 });
@@ -37,18 +40,23 @@ export const createProjectSchema = z.object({
 export const updateProjectSchema = createProjectSchema.partial();
 
 // Interaction validation schemas
-export const createInteractionSchema = z.object({
-  date: z.string().transform(val => new Date(val)),
-  type: z.enum(['CALL', 'EMAIL', 'MEETING', 'OTHER']),
-  notes: z.string().optional(),
-  clientId: z.string().uuid('Invalid client ID').optional(),
-  projectId: z.string().uuid('Invalid project ID').optional(),
-}).refine(data => data.clientId || data.projectId, {
-  message: 'Either clientId or projectId must be provided',
-});
+export const createInteractionSchema = z
+  .object({
+    date: z.string().transform((val) => new Date(val)),
+    type: z.enum(['CALL', 'EMAIL', 'MEETING', 'OTHER']),
+    notes: z.string().optional(),
+    clientId: z.string().uuid('Invalid client ID').optional(),
+    projectId: z.string().uuid('Invalid project ID').optional(),
+  })
+  .refine((data) => data.clientId || data.projectId, {
+    message: 'Either clientId or projectId must be provided',
+  });
 
 export const updateInteractionSchema = z.object({
-  date: z.string().transform(val => new Date(val)).optional(),
+  date: z
+    .string()
+    .transform((val) => new Date(val))
+    .optional(),
   type: z.enum(['CALL', 'EMAIL', 'MEETING', 'OTHER']).optional(),
   notes: z.string().optional(),
   clientId: z.string().uuid('Invalid client ID').optional(),
@@ -56,21 +64,26 @@ export const updateInteractionSchema = z.object({
 });
 
 // Reminder validation schemas
-export const createReminderSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  dueDate: z.string().transform(val => new Date(val)),
-  completed: z.boolean().optional(),
-  clientId: z.string().uuid('Invalid client ID').optional(),
-  projectId: z.string().uuid('Invalid project ID').optional(),
-}).refine(data => data.clientId || data.projectId, {
-  message: 'Either clientId or projectId must be provided',
-});
+export const createReminderSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().optional(),
+    dueDate: z.string().transform((val) => new Date(val)),
+    completed: z.boolean().optional(),
+    clientId: z.string().uuid('Invalid client ID').optional(),
+    projectId: z.string().uuid('Invalid project ID').optional(),
+  })
+  .refine((data) => data.clientId || data.projectId, {
+    message: 'Either clientId or projectId must be provided',
+  });
 
 export const updateReminderSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   description: z.string().optional(),
-  dueDate: z.string().transform(val => new Date(val)).optional(),
+  dueDate: z
+    .string()
+    .transform((val) => new Date(val))
+    .optional(),
   completed: z.boolean().optional(),
   clientId: z.string().uuid('Invalid client ID').optional(),
   projectId: z.string().uuid('Invalid project ID').optional(),

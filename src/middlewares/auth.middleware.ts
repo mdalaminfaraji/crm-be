@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../index';
 
-// Extend Express Request interface to include user property
 declare global {
   namespace Express {
     interface Request {
@@ -14,16 +13,9 @@ declare global {
   }
 }
 
-export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Get token from Authorization header or cookies
-    const token = 
-      req.headers.authorization?.split(' ')[1] || 
-      req.cookies.token;
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
 
     if (!token) {
       return res.status(401).json({ message: 'Authentication required' });
@@ -38,7 +30,7 @@ export const authenticate = async (
     // Check if user exists
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, email: true }
+      select: { id: true, email: true },
     });
 
     if (!user) {
