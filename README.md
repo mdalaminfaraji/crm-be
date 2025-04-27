@@ -10,6 +10,64 @@ This is the backend API for a Mini-CRM platform designed for freelancers to mana
 - **Authentication**: JWT (JSON Web Tokens)
 - **Validation**: Zod
 
+## Database Schema (ERD)
+
+```
++----------------+       +----------------+       +----------------+
+|      User      |       |     Client     |       |    Project     |
++----------------+       +----------------+       +----------------+
+| id             |       | id             |       | id             |
+| firstName      |       | name           |       | title          |
+| lastName       |       | email          |       | description    |
+| email          |       | phone          |       | status         |
+| password       |       | company        |       | budget         |
+| createdAt      |<----->| userId         |<----->| clientId       |
+| updatedAt      |       | notes          |       | userId         |
++----------------+       | createdAt      |       | startDate      |
+                         | updatedAt      |       | endDate        |
+                         +----------------+       | createdAt      |
+                                                 | updatedAt      |
+                                                 +----------------+
+                                                        ^
+                                                        |
+                                                        |
++----------------+                              +----------------+
+|   Reminder     |                              |  Interaction   |
++----------------+                              +----------------+
+| id             |                              | id             |
+| title          |                              | type           |
+| description    |                              | date           |
+| dueDate        |                              | notes          |
+| completed      |                              | clientId       |
+| clientId       |<------------------------------>| projectId     |
+| projectId      |<------------------------------>| userId        |
+| userId         |<------------------------------>| createdAt     |
+| createdAt      |                              | updatedAt     |
+| updatedAt      |                              +----------------+
++----------------+
+```
+
+### Entity Relationships
+
+- **User to Client**: One-to-Many (A user can have multiple clients)
+- **User to Project**: One-to-Many (A user can have multiple projects)
+- **Client to Project**: One-to-Many (A client can have multiple projects)
+- **User to Interaction**: One-to-Many (A user can log multiple interactions)
+- **Client to Interaction**: One-to-Many (A client can have multiple interactions)
+- **Project to Interaction**: One-to-Many (A project can have multiple interactions)
+- **User to Reminder**: One-to-Many (A user can set multiple reminders)
+- **Client to Reminder**: One-to-Many (A client can have multiple reminders)
+- **Project to Reminder**: One-to-Many (A project can have multiple reminders)
+
+### Key Constraints
+
+- All entities have a primary key `id` (UUID)
+- Foreign keys ensure referential integrity:
+  - `userId` in Client, Project, Interaction, and Reminder tables
+  - `clientId` in Project, Interaction, and Reminder tables
+  - `projectId` in Interaction and Reminder tables
+- Soft deletion is implemented for data recovery purposes
+
 ## Features
 
 - 🔐 **Authentication**: Secure signup and login system
