@@ -9,14 +9,55 @@ export const getAllClients = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
+    // Parse query parameters with defaults
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = (req.query.search as string) || '';
+    const sortBy = (req.query.sortBy as string) || 'createdAt';
+    const sortOrder = (req.query.sortOrder as string) || 'desc';
+
+    // Calculate pagination values
+    const skip = (page - 1) * limit;
+
+    // Build the where clause with search
+    const whereClause: any = { userId };
+    
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { company: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.client.count({ where: whereClause });
+
+    // Get clients with pagination, sorting and filtering
     const clients = await prisma.client.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
+      where: whereClause,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: limit,
     });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
 
     res.status(200).json({
       message: 'Clients retrieved successfully',
-      clients
+      clients,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage
+      }
     });
   } catch (error) {
     console.error('Get all clients error:', error);

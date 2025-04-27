@@ -9,8 +9,42 @@ export const getAllProjects = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
+    // Parse query parameters with defaults
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = (req.query.search as string) || '';
+    const status = (req.query.status as string) || '';
+    const clientId = (req.query.clientId as string) || '';
+    const sortBy = (req.query.sortBy as string) || 'createdAt';
+    const sortOrder = (req.query.sortOrder as string) || 'desc';
+
+    // Calculate pagination values
+    const skip = (page - 1) * limit;
+
+    // Build the where clause with search and filters
+    const whereClause: any = { userId };
+    
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    if (clientId) {
+      whereClause.clientId = clientId;
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.project.count({ where: whereClause });
+
+    // Get projects with pagination, sorting and filtering
     const projects = await prisma.project.findMany({
-      where: { userId },
+      where: whereClause,
       include: {
         client: {
           select: {
@@ -20,12 +54,27 @@ export const getAllProjects = async (req: Request, res: Response) => {
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: limit,
     });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
 
     res.status(200).json({
       message: 'Projects retrieved successfully',
-      projects
+      projects,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage
+      }
     });
   } catch (error) {
     console.error('Get all projects error:', error);
